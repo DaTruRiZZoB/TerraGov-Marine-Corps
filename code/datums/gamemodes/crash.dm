@@ -87,16 +87,6 @@
 
 /datum/game_mode/infestation/crash/post_setup()
 	. = ..()
-	for(var/i in GLOB.xeno_resin_silo_turfs)
-		new /obj/structure/xeno/silo(i)
-		new /obj/structure/xeno/pherotower(i)
-
-	for(var/i in GLOB.xeno_spawner_turfs)
-		new /obj/structure/xeno/spawner(i, XENO_HIVE_NORMAL)
-
-	for(var/obj/effect/landmark/corpsespawner/corpse AS in GLOB.corpse_landmarks_list)
-		corpse.create_mob()
-
 
 	for(var/i in GLOB.nuke_spawn_locs)
 		new /obj/machinery/nuclearbomb(i)
@@ -114,6 +104,16 @@
 
 	if(!(round_type_flags & MODE_INFESTATION))
 		return
+
+	for(var/i in GLOB.xeno_resin_silo_turfs)
+		new /obj/structure/xeno/silo(i)
+		new /obj/structure/xeno/pherotower(i)
+
+	for(var/i in GLOB.xeno_spawner_turfs)
+		new /obj/structure/xeno/spawner(i, XENO_HIVE_NORMAL)
+
+	for(var/obj/effect/landmark/corpsespawner/corpse AS in GLOB.corpse_landmarks_list)
+		corpse.create_mob()
 
 	for(var/i in GLOB.alive_xeno_list_hive[XENO_HIVE_NORMAL])
 		if(isxenolarva(i)) // Larva
@@ -227,6 +227,10 @@
 
 /datum/game_mode/infestation/crash/get_total_joblarvaworth(list/z_levels, count_flags = COUNT_IGNORE_HUMAN_SSD)
 	. = 0
+	var/round_duration = round((world.time - SSticker.round_start_time))
+	var/time_bonus = max(floor(round_duration / (10 MINUTES)) - 6, 0) //time bonus starts after 60 minutes
+	if(time_bonus)
+		. += (time_bonus * LARVA_POINTS_REGULAR)
 
 	for(var/mob/living/carbon/human/H AS in GLOB.human_mob_list)
 		if(!H.job)
